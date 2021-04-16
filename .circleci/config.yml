@@ -18,4 +18,7 @@ jobs:
       - run:
           name: psql --version
           command: psql --version
+      - run:
+          name: sudo service postgresql start 
+          command: sudo service postgresql start
 
