@@ -15,7 +15,7 @@ jobs:
       - run:
           name: sudo apt install postgresql postgresql-contrib
           command: sudo apt install postgresql postgresql-contrib
-      - run: 
-         name: psql --version
-         command: psql --version
-      - ruby/bundle-install
+      - run:
+          name: psql --version
+          command: psql --version
+
