@@ -16,8 +16,8 @@ jobs:
           name: bundle install
           command: bundle install
       - run:
-          name: start postgre server
-          command: service postgresql start
+          name: check postgres version
+          command: psql --version
       - run:
           name: create db
           command: rails db:create
