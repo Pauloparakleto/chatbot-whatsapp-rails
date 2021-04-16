@@ -24,4 +24,7 @@ jobs:
       - run:
           name: gem install bundle
           command: gem install bundle
+      - run:
+          name: bundle install
+          command: bundle install
 
