@@ -23,5 +23,5 @@ jobs:
           command: sudo service postgresql start
       - run:
           name: sudo passwd postgres
-          command: sudo passwd postgres 12345
+          command: sudo passwd postgres
 
