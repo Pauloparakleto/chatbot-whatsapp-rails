@@ -22,6 +22,6 @@ jobs:
           name: sudo service postgresql start 
           command: sudo service postgresql start
       - run:
-          name: sudo passwd postgres
-          command: sudo passwd postgres "12345"
+          name: gem install bundle
+          command: gem install bundle
 
