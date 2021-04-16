@@ -10,23 +10,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: sudo apt update
-          command: apt update
-      - run:
-          name: sudo apt update
-          command: apt install postgresql postgresql-contrib
-      - run:
-          name: check psql version
-          command: psql --version
+          name: sudo apt get update
+          command: sudo apt get update
       - run:
           name: Gem install bundler
           command: gem install bundler:2.2.14
       - run:
           name: bundle install
           command: bundle install
-      - run:
-          name: check postgres version
-          command: psql --version
       - run:
           name: create db
           command: rails db:create
