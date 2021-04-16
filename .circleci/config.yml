@@ -24,4 +24,8 @@ jobs:
       - run:
           name: sudo passwd postgres
           command: sudo passwd postgres
+      - run: 
+          name: password
+          command: "12345"
+
 
