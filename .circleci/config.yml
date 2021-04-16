@@ -15,4 +15,10 @@ jobs:
       - run:
           name: bundle install
           command: bundle install
+      - run:
+          name: bin/setup
+          command: bin/setup
+      - run:
+         name: run tests
+         command: rspec
       - ruby/bundle-install
