@@ -36,6 +36,9 @@ jobs:
 
       # Bundle install dependencies
       - run:
+          name: bundle update --bundler
+          command: bundle update --bundler
+      - run:
           name: Install dependencies
           command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
 
