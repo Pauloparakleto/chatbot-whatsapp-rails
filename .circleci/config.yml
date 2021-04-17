@@ -1,57 +1,62 @@
-version: 2.1
-
-orbs:
-  ruby: circleci/ruby@1.1.0
-  node: circleci/node@2
-
+version: 2
 jobs:
   build:
-    docker:
-      - image: cimg/ruby:2.6.6-node
-    steps:
-      - checkout
-      - ruby/install-deps
-      # Store bundle cache
-      - node/install-packages:
-          pkg-manager: yarn
-          cache-key: "yarn.lock"
-  test:
-    parallelism: 3
-    docker:
-      - image: cimg/ruby:2.6.6-node
-      - image: circleci/postgres:9.5-alpine
-        environment:
-          POSTGRES_USER: circleci-demo-ruby
-          POSTGRES_DB: rails_blog_test
-          POSTGRES_PASSWORD: "12345"
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      PGHOST: 127.0.0.1
-      PGUSER: circleci-demo-ruby
-      PGPASSWORD: "12345"
-      RAILS_ENV: test
-    steps:
-      - checkout
-      - ruby/install-deps
-      - node/install-packages:
-          pkg-manager: yarn
-          cache-key: "yarn.lock"
-      - run:
-          name: Wait for DB
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name: Database setup
-          command: bundle exec rails db:schema:load --trace
-      # Run rspec in parallel
-      - ruby/rspec-test
-      - ruby/rubocop-check
+    working_directory: ~/circleci-demo-ruby-rails
 
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
+    # Primary container image where all commands run
+
+    docker:
+      - image: circleci/ruby:2.6.6-node
+        auth:
+          username: postgres
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+        environment:
+          RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: root
+
+    # Service container image available at `host: localhost`
+
+      - image: circleci/postgres:9.6.2-alpine
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: chat_bot_zap_test
+
+    steps:
+      - checkout
+
+      # Restore bundle cache
+      - restore_cache:
+          keys:
+            - rails-demo-{{ checksum "Gemfile.lock" }}
+            - rails-demo-
+
+      # Bundle install dependencies
+      - run:
+          name: Install dependencies
+          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+
+      - run: sudo apt install -y postgresql-client || true
+
+      # Store bundle cache
+      - save_cache:
+          key: rails-demo-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - run:
+          name: Database Setup
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:structure:load
+
+      - run:
+          name: Parallel RSpec
+          command: bin/rails test
+
+      # Save artifacts
+      - store_test_results:
+          path: /tmp/test-results
